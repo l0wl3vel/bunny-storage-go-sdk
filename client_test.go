@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	bunnystorage "github.com/l0wl3vel/bunny-storage-go-sdk/pkg"
+	bunnystorage "github.com/l0wl3vel/bunny-storage-go-sdk"
 )
 
 var password string
