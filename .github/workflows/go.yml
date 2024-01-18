@@ -26,4 +26,7 @@ jobs:
       run: go build -v ./...
 
     - name: Test
+      env:
+        BUNNY_PASSWORD: ${{ secrets.BUNNY_PASSWORD }}
+        BUNNY_ENDPOINT: ${{ secrets.BUNNY_ENDPOINT }}
       run: go test -v ./...
