@@ -40,6 +40,7 @@ func TestMain(m *testing.M)	{
 }
 
 func DeleteFileWithPathSetToTrue(t *testing.T)	{
+	t.Cleanup(func() {DeleteTestPath(t)})
 	_ = UploadRandomFile1MB(t)
 	testpath := path.Join(testingDirectory, t.Name())
 
@@ -54,13 +55,13 @@ func DeleteFileWithPathSetToTrue(t *testing.T)	{
 }
 
 func TestDownloadAfterUpload1M(t *testing.T)	{
+	t.Cleanup(func() {DeleteTestPath(t)})
 	input := UploadRandomFile1MB(t) // 1MB file size
 	output := DownloadFile(t)
 	list := ListFilesInTestDir(t)
 	if len(list) != 1	{
 		t.Errorf("Returned List not as long as expected: Got: %v Expected %v", len(list), 1)
 	}
-	DeleteTestPath(t)
 
 	if !reflect.DeepEqual(input, output)	{
 		t.Error("Downloaded Content does not match uploaded content")
@@ -68,6 +69,7 @@ func TestDownloadAfterUpload1M(t *testing.T)	{
 }
 
 func TestListAfterUploadWithExtraTrailingSlash(t *testing.T)	{
+	t.Cleanup(func() {DeleteTestPath(t)})
 	_ = UploadRandomFile1MB(t) // 1MB file size
 	list, err := bunnyclient.List(testingDirectory+"/")
 	if err != nil	{
@@ -76,7 +78,6 @@ func TestListAfterUploadWithExtraTrailingSlash(t *testing.T)	{
 	if len(list) != 1	{
 		t.Errorf("Returned List not as long as expected: Got: %v Expected %v", len(list), 1)
 	}
-	DeleteTestPath(t)
 }
 
 func TestListOnMissingDirectory(t *testing.T)	{
@@ -112,10 +113,6 @@ func UploadRandomFile1MB(t *testing.T) []byte	{
 	t.Helper()
 	testpath := path.Join(testingDirectory, t.Name())
 	testcontent := make([]byte, 1048576)
-
-	t.Cleanup(func() {
-		bunnyclient.Delete(testpath, false)
-	})
 
 	_, err := rand.Read(testcontent)
 	if err != nil 	{
