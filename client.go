@@ -100,6 +100,9 @@ func (c *Client) Delete(path string, isPath bool) error {
 		return err
 	}
 	if resp.IsError() {
+		if resp.StatusCode() == http.StatusNotFound	{
+			return nil // Some clients seem to expect seleting a non-existing file to return without an error
+		}
 		return errors.New(resp.Status())
 	}
 	return nil
