@@ -28,7 +28,7 @@ content := make([]byte, 1048576)
 // Fill content with data
 
 // The last argument controls if a checksum is included in the request
-err := bunnyclient.Upload("foo/bar.txt", content, true) 
+err := bunnyclient.Upload("foo/bar.txt", content, true)
 if err != nil 	{
 	panic(err)
 }
@@ -42,7 +42,7 @@ if err != nil 	{
 
 # ❤️ Thanks to
 
-- James Pond for creating the original [bunnystorage-go](https://sr.ht/~jamesponddotco/bunnystorage-go/) library, which allowed me to start prototyping my work on JuiceFS immediately 
+- James Pond for creating the original [bunnystorage-go](https://sr.ht/~jamesponddotco/bunnystorage-go/) library, which allowed me to start prototyping my work on JuiceFS immediately
 - Bunny.net for creating an awesome performing and attractively priced object storage solution
 
 # Disclaimer
