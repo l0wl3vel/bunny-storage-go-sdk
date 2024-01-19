@@ -23,9 +23,10 @@ func NewClient(endpoint url.URL, password string) Client {
 			New().
 			SetRetryCount(5).
 			AddRetryCondition(
-				// RetryConditionFunc type is for retry condition function
-				// input: non-nil Response OR request execution error
 				func(r *resty.Response, err error) bool {
+					if err != nil	{
+						return false
+					}
 					return r.StatusCode() == http.StatusTooManyRequests
 				},
 			).
@@ -75,7 +76,7 @@ func (c *Client) Download(path string) ([]byte, error) {
 	resp, err := c.R().Get(path)
 	c.logger.Debugf("Get Request Response: %v", resp)
 
-	if err != nil || resp.IsError() {
+	if err != nil {
 		c.logger.Errorf("Get Request Failed: %v", err)
 		return nil, err
 	}
@@ -99,6 +100,9 @@ func (c *Client) Delete(path string, isPath bool) error {
 		return err
 	}
 	if resp.IsError() {
+		if resp.StatusCode() == http.StatusNotFound	{
+			return nil // Some clients seem to expect seleting a non-existing file to return without an error
+		}
 		return errors.New(resp.Status())
 	}
 	return nil
