@@ -23,9 +23,10 @@ func NewClient(endpoint url.URL, password string) Client {
 			New().
 			SetRetryCount(5).
 			AddRetryCondition(
-				// RetryConditionFunc type is for retry condition function
-				// input: non-nil Response OR request execution error
 				func(r *resty.Response, err error) bool {
+					if err != nil	{
+						return false
+					}
 					return r.StatusCode() == http.StatusTooManyRequests
 				},
 			).
