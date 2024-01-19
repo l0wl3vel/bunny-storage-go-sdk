@@ -54,6 +54,16 @@ func DeleteFileWithPathSetToTrue(t *testing.T)	{
 	}
 }
 
+func TestGetNonexistentFile(t *testing.T)	{
+	body, err := bunnyclient.Download("thispathdoesnotexist")
+	if err == nil	{
+		t.Error("Error should not be nil when getting a non-existent file")
+	}
+	if body != nil	{
+		t.Error("Returned buffer should be nil when getting a non-existent file")
+	}
+}
+
 func TestDownloadAfterUpload1M(t *testing.T)	{
 	t.Cleanup(func() {DeleteTestPath(t)})
 	input := UploadRandomFile1MB(t) // 1MB file size

@@ -76,7 +76,7 @@ func (c *Client) Download(path string) ([]byte, error) {
 	resp, err := c.R().Get(path)
 	c.logger.Debugf("Get Request Response: %v", resp)
 
-	if err != nil || resp.IsError() {
+	if err != nil {
 		c.logger.Errorf("Get Request Failed: %v", err)
 		return nil, err
 	}
