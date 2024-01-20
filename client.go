@@ -1,11 +1,12 @@
 package bunnystorage
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"net/http"
 	"net/url"
+
+	"github.com/minio/sha256-simd"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
