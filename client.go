@@ -24,7 +24,7 @@ func NewClient(endpoint url.URL, password string) Client {
 			SetRetryCount(5).
 			AddRetryCondition(
 				func(r *resty.Response, err error) bool {
-					if err != nil	{
+					if err != nil {
 						return false
 					}
 					return r.StatusCode() == http.StatusTooManyRequests
@@ -61,7 +61,7 @@ func (c *Client) Upload(path string, content []byte, generateChecksum bool) erro
 	resp, err := req.Put(path)
 	c.logger.Debugf("Put Request Response: %v", resp)
 
-	if err != nil	{
+	if err != nil {
 		c.logger.Errorf("Put Request Failed: %v", err)
 		return err
 	}
@@ -89,7 +89,7 @@ func (c *Client) Download(path string) ([]byte, error) {
 // Delete a file or a directory. If the path to delete is a directory, set the isPath flag to true
 func (c *Client) Delete(path string, isPath bool) error {
 	if isPath {
-		path += "/"  // The trailing slash is required to delete a directory
+		path += "/" // The trailing slash is required to delete a directory
 	}
 
 	resp, err := c.R().Delete(path)
@@ -100,7 +100,7 @@ func (c *Client) Delete(path string, isPath bool) error {
 		return err
 	}
 	if resp.IsError() {
-		if resp.StatusCode() == http.StatusNotFound	{
+		if resp.StatusCode() == http.StatusNotFound {
 			return nil // Some clients seem to expect seleting a non-existing file to return without an error
 		}
 		return errors.New(resp.Status())
@@ -114,7 +114,7 @@ func (c *Client) List(path string) ([]Object, error) {
 	resp, err := c.R().
 		SetHeader("Accept", "application/json").
 		SetResult(&objectList).
-		Get(path + "/")	// The trailing slash is neccessary, since without it the API will treat the requested directory as a file and returns an empty list
+		Get(path + "/") // The trailing slash is neccessary, since without it the API will treat the requested directory as a file and returns an empty list
 	c.logger.Debugf("List Request Response: %v", resp)
 
 	if err != nil {
