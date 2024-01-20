@@ -45,7 +45,7 @@ func (c *Client) WithLogger(l resty.Logger) *Client {
 // Uploads a file to the relative path. generateChecksum controls if a checksum gets generated and attached to the upload request. Returns an error.
 func (c *Client) Upload(path string, content []byte, generateChecksum bool) error {
 	req := c.R().
-		SetHeader("content-type", "application/octet-stream").
+		SetHeader("Content-Type", "application/octet-stream").
 		SetBody(content)
 
 	if generateChecksum {
@@ -88,7 +88,7 @@ func (c *Client) Download(path string) ([]byte, error) {
 
 // Delete a file or a directory. If the path to delete is a directory, set the isPath flag to true
 func (c *Client) Delete(path string, isPath bool) error {
-	if isPath	{
+	if isPath {
 		path += "/"  // The trailing slash is required to delete a directory
 	}
 
@@ -112,7 +112,7 @@ func (c *Client) Delete(path string, isPath bool) error {
 func (c *Client) List(path string) ([]Object, error) {
 	objectList := []Object{}
 	resp, err := c.R().
-		SetHeader("accept", "application/json").
+		SetHeader("Accept", "application/json").
 		SetResult(&objectList).
 		Get(path + "/")	// The trailing slash is neccessary, since without it the API will treat the requested directory as a file and returns an empty list
 	c.logger.Debugf("List Request Response: %v", resp)
