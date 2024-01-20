@@ -14,9 +14,13 @@ This library features a simple API and allows you to focus on what`s important
 
 ## 🦾 Getting Started
 
+```bash
+go get github.com/l0wl3vel/bunny-storage-go-sdk
+```
+
 ```go
 import "net/url"
-import "github.com/l0wl3vel/bunnystorage-go"
+import "github.com/l0wl3vel/bunny-storage-go-sdk"
 
 endpoint, err := endpoint.Parse("https://la.storage.bunnycdn.com/mystoragezone/")
 if err != nil	{
@@ -33,6 +37,12 @@ if err != nil 	{
 	panic(err)
 }
 
+```
+
+## Running E2E tests
+
+```bash
+BUNNY_PASSWORD=redacted BUNNY_ENDPOINT=https://storage.bunnycdn.com/<zone-name> go test ./... -v
 ```
 
 ## 🤔 Further Ideas
