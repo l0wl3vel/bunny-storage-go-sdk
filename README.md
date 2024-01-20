@@ -39,15 +39,26 @@ if err != nil 	{
 
 ```
 
-## Running E2E tests
+## Developing
 
-```bash
-BUNNY_PASSWORD=redacted BUNNY_ENDPOINT=https://storage.bunnycdn.com/<zone-name> go test ./... -v
+```
+# Install pre-commit from https://pre-commit.com/
+
+pre-commit install --install-hooks
+
+# Do your changes here
+
+# Run the E2E tests
+BUNNY_PASSWORD=<insert password> BUNNY_ENDPOINT=https://storage.bunnycdn.com/<zone-name> go test ./... -v
+pre-commit run --all-files
+
+# Commit your changes
+git commit
 ```
 
 ## 🤔 Further Ideas
 
-[ ] Implement Pull Zone support
+[] Implement Pull Zone support
 
 
 # ❤️ Thanks to
