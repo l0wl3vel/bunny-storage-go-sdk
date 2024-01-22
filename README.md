@@ -7,9 +7,9 @@ This is a new Library for using the Bunny.net Object Storage Service in Go. It h
 
 I wrote this because of a open PR implementing Bunny.net as Object Storage in JuiceFS and the maintainers were a bit hesitant merging code with many homebrew dependencies. This is using just three widespread dependencies (resty, uuid, logrus) and is about 100 lines of library code, excluding tests.
 
-- The E2E test coverage is currently at about 60%
+- The E2E test coverage is currently at about 70%
 - Simple to use
-- undocumented `Describe` funtion which allows to retrieve metadata for single, non-directory files.
+- Implements Undocumented `Describe` funtion which allows to retrieve metadata for single, non-directory files.
 
 
 ## 🦾 Getting Started
