@@ -134,7 +134,7 @@ func (c *Client) Describe(path string) (Object, error) {
 
 	resp, err := c.R().
 		SetHeader("Accept", "application/json").
-		SetResult(object).
+		SetResult(&object).
 		Execute("DESCRIBE", path)
 	c.logger.Debugf("Describe Request Response: %v", resp)
 
