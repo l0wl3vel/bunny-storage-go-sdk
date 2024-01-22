@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
-func DescribeFile(t *testing.T) {
+func TestDescribeFile(t *testing.T) {
 	_, name := UploadRandomFile1MB(t)
 	obj, err := bunnyclient.Describe(name)
 	if err != nil {
