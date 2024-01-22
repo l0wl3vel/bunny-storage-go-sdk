@@ -40,6 +40,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestDescribeFile(t *testing.T) {
+	t.Cleanup(func() { DeleteTestPath(t) })
 	_, name := UploadRandomFile1MB(t)
 	obj, err := bunnyclient.Describe(name)
 	if err != nil {
