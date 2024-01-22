@@ -127,3 +127,23 @@ func (c *Client) List(path string) ([]Object, error) {
 	}
 	return objectList, nil
 }
+
+// Describes an Object. EXPERIMENTAL. The official Java SDK uses it, but the DESCRIBE HTTP method used is not officially documented.
+func (c *Client) Describe(path string) (Object, error) {
+	object := Object{}
+
+	resp, err := c.R().
+		SetHeader("Accept", "application/json").
+		SetResult(object).
+		Execute("DESCRIBE", path)
+	c.logger.Debugf("Describe Request Response: %v", resp)
+
+	if err != nil {
+		c.logger.Errorf("Describe Request Failed: %v", err)
+		return object, err
+	}
+	if resp.IsError() {
+		return object, errors.New(resp.Status())
+	}
+	return object, nil
+}
