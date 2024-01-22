@@ -39,10 +39,21 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+func DescribeFile(t *testing.T) {
+	_, name := UploadRandomFile1MB(t)
+	obj, err := bunnyclient.Describe(name)
+	if err != nil {
+		t.Error(err)
+	}
+	empty_object := bunnystorage.Object{}
+	if obj == empty_object {
+		t.Errorf("Returned empty DESCRIBE API response")
+	}
+}
+
 func DeleteFileWithPathSetToTrue(t *testing.T) {
 	t.Cleanup(func() { DeleteTestPath(t) })
-	_ = UploadRandomFile1MB(t)
-	testpath := path.Join(testingDirectory, t.Name())
+	_, testpath := UploadRandomFile1MB(t)
 
 	err := bunnyclient.Delete(testpath, true)
 	if err != nil {
@@ -73,7 +84,7 @@ func TestDeleteNonexistentFile(t *testing.T) {
 
 func TestDownloadAfterUpload1M(t *testing.T) {
 	t.Cleanup(func() { DeleteTestPath(t) })
-	input := UploadRandomFile1MB(t) // 1MB file size
+	input, _ := UploadRandomFile1MB(t) // 1MB file size
 	output := DownloadFile(t)
 	list := ListFilesInTestDir(t)
 	if len(list) != 1 {
@@ -87,7 +98,7 @@ func TestDownloadAfterUpload1M(t *testing.T) {
 
 func TestListAfterUploadWithExtraTrailingSlash(t *testing.T) {
 	t.Cleanup(func() { DeleteTestPath(t) })
-	_ = UploadRandomFile1MB(t) // 1MB file size
+	_, _ = UploadRandomFile1MB(t) // 1MB file size
 	list, err := bunnyclient.List(testingDirectory + "/")
 	if err != nil {
 		t.Error(err)
@@ -126,7 +137,7 @@ func DownloadFile(t *testing.T) []byte {
 	return body
 }
 
-func UploadRandomFile1MB(t *testing.T) []byte {
+func UploadRandomFile1MB(t *testing.T) ([]byte, string) {
 	t.Helper()
 	testpath := path.Join(testingDirectory, t.Name())
 	testcontent := make([]byte, 1048576)
@@ -140,7 +151,7 @@ func UploadRandomFile1MB(t *testing.T) []byte {
 	if err != nil {
 		t.Error(err)
 	}
-	return testcontent
+	return testcontent, testpath
 }
 
 func DeleteFile(t *testing.T) {
