@@ -1,9 +1,11 @@
 package bunnystorage
 
 import (
+	"bytes"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -46,18 +48,29 @@ func (c *Client) WithLogger(l resty.Logger) *Client {
 
 // Uploads a file to the relative path. generateChecksum controls if a checksum gets generated and attached to the upload request. Returns an error.
 func (c *Client) Upload(path string, content []byte, generateChecksum bool) error {
+	return c.UploadFromReader(path, bytes.NewReader(content), generateChecksum)
+}
+
+// Uploads a file to the relative path. generateChecksum controls if a checksum gets generated and attached to the upload request. Returns an error. Allows passing a reader instead of a []byte
+func (c *Client) UploadFromReader(path string, content io.Reader, generateChecksum bool) error {
 	req := c.R().
-		SetHeader("Content-Type", "application/octet-stream").
-		SetBody(content)
+		SetHeader("Content-Type", "application/octet-stream")
 
 	if generateChecksum {
 		checksum := sha256.New()
-		_, err := checksum.Write(content)
+		content_slice, readErr := io.ReadAll(content)
+		if readErr != nil {
+			return readErr
+		}
+		_, err := checksum.Write(content_slice)
 		if err != nil {
 			return err
 		}
 		hex_checksum := hex.EncodeToString(checksum.Sum(nil))
-		req = req.SetHeader("Checksum", hex_checksum)
+		req = req.SetHeader("Checksum", hex_checksum).SetBody(content_slice)
+	} else {
+		// Use Resty bufferless codepath if checksum is disabled
+		req = req.SetBody(content)
 	}
 
 	resp, err := req.Put(path)
@@ -73,9 +86,22 @@ func (c *Client) Upload(path string, content []byte, generateChecksum bool) erro
 	return nil
 }
 
-// Downloads a file from a path.
+// Downloads a file from a path. If you want to avoid passing buffers directly for performance, use DownloadWithReaderCloser
 func (c *Client) Download(path string) ([]byte, error) {
-	resp, err := c.R().Get(path)
+	out, err := c.DownloadWithReaderCloser(path)
+	if err != nil {
+		return nil, err
+	}
+	defer out.Close()
+	buffer, err := io.ReadAll(out)
+	return buffer, err
+}
+
+// Downloads a file from a path. Do not forget to close the io.ReadCloser or you will leak connections
+func (c *Client) DownloadWithReaderCloser(path string) (io.ReadCloser, error) {
+	resp, err := c.R().
+		SetDoNotParseResponse(true).
+		Get(path)
 	c.logger.Debugf("Get Request Response: %v", resp)
 
 	if err != nil {
@@ -85,14 +111,30 @@ func (c *Client) Download(path string) ([]byte, error) {
 	if resp.IsError() {
 		return nil, errors.New(resp.Status())
 	}
-	return resp.Body(), nil
+	return resp.RawBody(), nil
 }
 
-// Downloads a byte range of a file. Uses the semantics for HTTP range requests
+// Downloads a byte range of a file. Uses the semantics for HTTP range requests. If you want to avoid passing buffers directly for performance, use DownloadPartialWithReaderCloser
 //
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 func (c *Client) DownloadPartial(path string, rangeStart int64, rangeEnd int64) ([]byte, error) {
-	resp, err := c.R().SetHeader("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)).Get(path)
+	out, err := c.DownloadPartialWithReaderCloser(path, rangeStart, rangeEnd)
+	if err != nil {
+		return nil, err
+	}
+	defer out.Close()
+	buffer, err := io.ReadAll(out)
+	return buffer, err
+}
+
+// Downloads a byte range of a file. Uses the semantics for HTTP range requests. Do not forget to close the io.ReadCloser or you will leak connections
+//
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
+func (c *Client) DownloadPartialWithReaderCloser(path string, rangeStart int64, rangeEnd int64) (io.ReadCloser, error) {
+	resp, err := c.R().
+		SetHeader("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)).
+		SetDoNotParseResponse(true).
+		Get(path)
 	c.logger.Debugf("Get Range Request Response: %v %v-%v", resp, rangeStart, rangeEnd)
 
 	if err != nil {
@@ -102,7 +144,7 @@ func (c *Client) DownloadPartial(path string, rangeStart int64, rangeEnd int64) 
 	if resp.IsError() {
 		return nil, errors.New(resp.Status())
 	}
-	return resp.Body(), nil
+	return resp.RawBody(), nil
 }
 
 // Delete a file or a directory. If the path to delete is a directory, set the isPath flag to true
