@@ -1,6 +1,7 @@
 package bunnystorage
 
 import (
+	"bytes"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -47,18 +48,29 @@ func (c *Client) WithLogger(l resty.Logger) *Client {
 
 // Uploads a file to the relative path. generateChecksum controls if a checksum gets generated and attached to the upload request. Returns an error.
 func (c *Client) Upload(path string, content []byte, generateChecksum bool) error {
+	return c.UploadFromReader(path, bytes.NewReader(content), generateChecksum)
+}
+
+// Uploads a file to the relative path. generateChecksum controls if a checksum gets generated and attached to the upload request. Returns an error. Allows passing a reader instead of a []byte
+func (c *Client) UploadFromReader(path string, content io.Reader, generateChecksum bool) error {
 	req := c.R().
-		SetHeader("Content-Type", "application/octet-stream").
-		SetBody(content)
+		SetHeader("Content-Type", "application/octet-stream")
 
 	if generateChecksum {
 		checksum := sha256.New()
-		_, err := checksum.Write(content)
+		content_slice, readErr := io.ReadAll(content)
+		if readErr != nil {
+			return readErr
+		}
+		_, err := checksum.Write(content_slice)
 		if err != nil {
 			return err
 		}
 		hex_checksum := hex.EncodeToString(checksum.Sum(nil))
-		req = req.SetHeader("Checksum", hex_checksum)
+		req = req.SetHeader("Checksum", hex_checksum).SetBody(content_slice)
+	} else {
+		// Use Resty bufferless codepath if checksum is disabled
+		req = req.SetBody(content)
 	}
 
 	resp, err := req.Put(path)
