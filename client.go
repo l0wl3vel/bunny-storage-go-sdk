@@ -91,7 +91,7 @@ func (c *Client) Download(path string) ([]byte, error) {
 // Downloads a byte range of a file. Uses the semantics for HTTP range requests
 //
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
-func (c *Client) DownloadPartial(path string, rangeStart int, rangeEnd int) ([]byte, error) {
+func (c *Client) DownloadPartial(path string, rangeStart int64, rangeEnd int64) ([]byte, error) {
 	resp, err := c.R().SetHeader("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)).Get(path)
 	c.logger.Debugf("Get Range Request Response: %v %v-%v", resp, rangeStart, rangeEnd)
 
