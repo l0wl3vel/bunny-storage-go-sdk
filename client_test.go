@@ -39,6 +39,22 @@ func TestMain(m *testing.M) {
 	m.Run()
 }
 
+func TestRangeDownload(t *testing.T) {
+	t.Cleanup(func() { DeleteTestPath(t) })
+
+	content, filepath := UploadRandomFile1MB(t)
+
+	contentRange, err := bunnyclient.DownloadPartial(filepath, 20, 1023)
+	if err != nil {
+		t.Error(err)
+	}
+	// Go uses [inclusive:exclusive] slice indexing and HTTP Ranges use [inclusive:inclusive]
+	expected_range := content[20:1024]
+	if !reflect.DeepEqual(contentRange, expected_range) {
+		t.Errorf("Ranged download did not return the expected range len_input:%v len_test:%v", len(expected_range), len(contentRange))
+	}
+}
+
 func TestDescribeFile(t *testing.T) {
 	t.Cleanup(func() { DeleteTestPath(t) })
 	_, name := UploadRandomFile1MB(t)

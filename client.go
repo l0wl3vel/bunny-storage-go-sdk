@@ -3,6 +3,7 @@ package bunnystorage
 import (
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -79,6 +80,23 @@ func (c *Client) Download(path string) ([]byte, error) {
 
 	if err != nil {
 		c.logger.Errorf("Get Request Failed: %v", err)
+		return nil, err
+	}
+	if resp.IsError() {
+		return nil, errors.New(resp.Status())
+	}
+	return resp.Body(), nil
+}
+
+// Downloads a byte range of a file. Uses the semantics for HTTP range requests
+//
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
+func (c *Client) DownloadPartial(path string, rangeStart int, rangeEnd int) ([]byte, error) {
+	resp, err := c.R().SetHeader("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)).Get(path)
+	c.logger.Debugf("Get Range Request Response: %v %v-%v", resp, rangeStart, rangeEnd)
+
+	if err != nil {
+		c.logger.Errorf("Get Range Request Failed: %v", err)
 		return nil, err
 	}
 	if resp.IsError() {

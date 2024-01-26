@@ -10,6 +10,7 @@ I wrote this because of a open PR implementing Bunny.net as Object Storage in Ju
 - The E2E test coverage is currently at about 70%
 - Simple to use
 - Implements Undocumented `Describe` funtion which allows to retrieve metadata for single, non-directory files.
+- Implements [HTTP Range Downloads](https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests) for downloading segments of objects
 
 
 ## 🦾 Getting Started
