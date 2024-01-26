@@ -61,7 +61,6 @@ func (c *Client) Upload(path string, content []byte, generateChecksum bool) erro
 	}
 
 	resp, err := req.Put(path)
-	c.logger.Debugf("Put Request Response: %v", resp)
 
 	if err != nil {
 		c.logger.Errorf("Put Request Failed: %v", err)
@@ -70,13 +69,14 @@ func (c *Client) Upload(path string, content []byte, generateChecksum bool) erro
 	if resp.IsError() {
 		return errors.New(resp.Status())
 	}
+	c.logger.Debugf("Put Request Response: %v", resp)
+
 	return nil
 }
 
 // Downloads a file from a path.
 func (c *Client) Download(path string) ([]byte, error) {
 	resp, err := c.R().Get(path)
-	c.logger.Debugf("Get Request Response: %v", resp)
 
 	if err != nil {
 		c.logger.Errorf("Get Request Failed: %v", err)
@@ -85,6 +85,8 @@ func (c *Client) Download(path string) ([]byte, error) {
 	if resp.IsError() {
 		return nil, errors.New(resp.Status())
 	}
+	c.logger.Debugf("Get Request Response: %v", resp)
+
 	return resp.Body(), nil
 }
 
@@ -92,8 +94,10 @@ func (c *Client) Download(path string) ([]byte, error) {
 //
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 func (c *Client) DownloadPartial(path string, rangeStart int, rangeEnd int) ([]byte, error) {
-	resp, err := c.R().SetHeader("Range", fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)).Get(path)
-	c.logger.Debugf("Get Range Request Response: %v %v-%v", resp, rangeStart, rangeEnd)
+	rangeHeader := fmt.Sprintf("bytes=%d-%d", rangeStart, rangeEnd)
+	resp, err := c.R().
+		SetHeader("Range", rangeHeader).
+		Get(path)
 
 	if err != nil {
 		c.logger.Errorf("Get Range Request Failed: %v", err)
@@ -102,6 +106,8 @@ func (c *Client) DownloadPartial(path string, rangeStart int, rangeEnd int) ([]b
 	if resp.IsError() {
 		return nil, errors.New(resp.Status())
 	}
+	c.logger.Debugf("Get Range Request Response: %v %v-%v", resp, rangeStart, rangeEnd)
+
 	return resp.Body(), nil
 }
 
@@ -112,7 +118,6 @@ func (c *Client) Delete(path string, isPath bool) error {
 	}
 
 	resp, err := c.R().Delete(path)
-	c.logger.Debugf("Delete Request Response: %v", resp)
 
 	if err != nil {
 		c.logger.Errorf("Delete Request Failed: %v", err)
@@ -124,6 +129,8 @@ func (c *Client) Delete(path string, isPath bool) error {
 		}
 		return errors.New(resp.Status())
 	}
+	c.logger.Debugf("Delete Request Response: %v", resp)
+
 	return nil
 }
 
@@ -134,7 +141,6 @@ func (c *Client) List(path string) ([]Object, error) {
 		SetHeader("Accept", "application/json").
 		SetResult(&objectList).
 		Get(path + "/") // The trailing slash is neccessary, since without it the API will treat the requested directory as a file and returns an empty list
-	c.logger.Debugf("List Request Response: %v", resp)
 
 	if err != nil {
 		c.logger.Errorf("List Request Failed: %v", err)
@@ -143,6 +149,8 @@ func (c *Client) List(path string) ([]Object, error) {
 	if resp.IsError() {
 		return nil, errors.New(resp.Status())
 	}
+	c.logger.Debugf("List Request Response: %v", resp)
+
 	return objectList, nil
 }
 
@@ -154,7 +162,6 @@ func (c *Client) Describe(path string) (Object, error) {
 		SetHeader("Accept", "application/json").
 		SetResult(&object).
 		Execute("DESCRIBE", path)
-	c.logger.Debugf("Describe Request Response: %v", resp)
 
 	if err != nil {
 		c.logger.Errorf("Describe Request Failed: %v", err)
@@ -163,5 +170,7 @@ func (c *Client) Describe(path string) (Object, error) {
 	if resp.IsError() {
 		return object, errors.New(resp.Status())
 	}
+	c.logger.Debugf("Describe Request Response: %v", resp)
+
 	return object, nil
 }
