@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"time"
 
@@ -154,9 +153,6 @@ func (c *Client) Delete(path string, isPath bool) error {
 		return err
 	}
 	if isHTTPError(resp.StatusCode()) {
-		if resp.StatusCode() == http.StatusNotFound {
-			return nil // Some clients seem to expect seleting a non-existing file to return without an error
-		}
 		return errors.New(string(resp.Header.StatusMessage()))
 	}
 	return nil
