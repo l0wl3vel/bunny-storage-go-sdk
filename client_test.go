@@ -94,8 +94,8 @@ func TestGetNonexistentFile(t *testing.T) {
 
 func TestDeleteNonexistentFile(t *testing.T) {
 	err := bunnyclient.Delete("thispathdoesnotexist", false)
-	if err != nil {
-		t.Error("Expected no error when deleting a file that does not exist")
+	if err == nil {
+		t.Error("Expected \"Not Found\" Error")
 	}
 }
 
