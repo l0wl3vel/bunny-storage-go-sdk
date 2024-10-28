@@ -1,6 +1,6 @@
 module github.com/l0wl3vel/bunny-storage-go-sdk
 
-go 1.20
+go 1.23
 
 require (
 	github.com/go-resty/resty/v2 v2.15.3
