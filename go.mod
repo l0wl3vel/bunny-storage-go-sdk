@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/go-resty/resty/v2 v2.11.0
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/minio/sha256-simd v1.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/valyala/fasthttp v1.52.0
