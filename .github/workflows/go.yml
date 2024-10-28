@@ -5,28 +5,27 @@ name: Go
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request_target:
-    branches: [ "main" ]
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
-
   build:
     environment: l0wl3vel-e2e-tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.20'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.20"
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: Test
-      env:
-        BUNNY_PASSWORD: ${{ secrets.BUNNY_PASSWORD }}
-        BUNNY_ENDPOINT: ${{ secrets.BUNNY_ENDPOINT }}
-      run: go test -v ./...
+      - name: Test
+        env:
+          BUNNY_PASSWORD: ${{ secrets.BUNNY_PASSWORD }}
+          BUNNY_ENDPOINT: ${{ secrets.BUNNY_ENDPOINT }}
+        run: go test -v ./...
